@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"errors"
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
@@ -45,11 +44,6 @@ func CloneRepository(repo string, filename string) (string, error) {
 
 	log.Debug("Cloning ", cloneDir)
 
-	//auth, err := ssh.DefaultAuthBuilder("git")
-	//if err != nil {
-	//	log.Fatalf("default auth builder: %v", err)
-	//}
-	//
 	_, err = git.PlainClone(
 		cloneDir,
 		false,
@@ -81,8 +75,12 @@ func CloneRepoStep(projectId string) (string, error) {
 		return "", err
 	}
 	// update repo status in db
+	updatedProject, _ := database.UpdateProjectStatus(projectId, database.P_CLONED)
+	if err != nil {
+		return "", err
+	}
 
-	return "", errors.New("not implemented")
+	return ResolveProjectPath(updatedProject), nil
 }
 
 // todo: maybe separate em
@@ -107,7 +105,7 @@ func CommitAndPush(filename string) error {
 	}
 
 	fmt.Println("git add ", filename)
-	w.Add(filename)
+	w.Add(".")
 
 	fmt.Println("Commit our changes")
 	w.Commit("Added my new file", &git.CommitOptions{})
@@ -123,8 +121,4 @@ func CommitAndPush(filename string) error {
 	}
 
 	return nil
-}
-
-func cleanup() {
-	// todo
 }

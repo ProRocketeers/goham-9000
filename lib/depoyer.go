@@ -3,9 +3,12 @@ package lib
 import (
 	"fmt"
 	"github.com/gofiber/fiber/v2/log"
+	"github.com/spf13/viper"
+	"goham-9000/model"
 	"gopkg.in/yaml.v3"
 	"io/ioutil"
 	_ "os"
+	"strings"
 )
 
 // Note: struct fields must be public in order for unmarshal to
@@ -55,31 +58,33 @@ type Volumes struct {
 type KubeSecret struct {
 }
 
-func DeployEditor(folderPath string, id string) (string, error) {
-	var fileToWrite = RootGitDir + "/" + folderPath + "/" + "test-deployment.yaml"
+func DeployEditor(folderPath string, dbRecord model.Repository) (string, error) {
+	var serviceName = strings.ToLower(strings.ReplaceAll(dbRecord.Name, " ", "-"))
+	var fileToWrite = RootGitDir + "/" + folderPath + "/" + serviceName + ".yaml"
 
 	log.Debug("Editing file: ", fileToWrite)
+
 	// WRITE FILE
 	fileData := Deployment{
-		Namespace:    "default",
-		Service:      id,
+		Namespace:    viper.Get("NAMESPACE").(string),
+		Service:      serviceName,
 		Component:    "api",
 		Environment:  "dev",
 		ReplicaCount: 1,
 		Image: Image{
-			Repository: "harbor.cosik.com",
-			Tag:        "abc12",
-			//PullSecrets: [2] string {"gitlab-deploy-token-api", "dasf"}
+			Repository: dbRecord.ImgUrl,
+			Tag:        "latest",
 		},
 	}
 
-	// todo: yaml editing magic
-	generateDeployment(fileToWrite, fileData)
+	log.Debug("Let us generate yaml and save")
+	generateYamlFile(fileToWrite, fileData)
+
 	log.Debug("File edited: ", fileToWrite)
 	return "", nil
 }
 
-func generateDeployment(filename string, fileData Deployment) {
+func generateYamlFile(filename string, fileData Deployment) {
 	// Writing the Person struct to a YAML file
 	data, err := yaml.Marshal(fileData)
 	if err != nil {

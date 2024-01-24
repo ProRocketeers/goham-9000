@@ -25,10 +25,10 @@ func main() {
 	app := fiber.New()
 	app.Use(logger.New())
 	app.Get("/", root)
-	app.Get("/getgit", cloneRepo)
 	app.Get("/version", nixVersion)
 	app.Post("build", nixBuild)
 	app.Get("/uploadToReg", uploadToReg)
+	app.Post("/clone/:id", cloneRepo)
 	app.Post("/deploy", deploy)
 
 	app.Get("/repos", GetRepos)
@@ -44,11 +44,14 @@ func root(ctx *fiber.Ctx) error {
 	return ctx.SendString("Hello from goham 9000")
 }
 func cloneRepo(ctx *fiber.Ctx) error {
-	path, err := lib.CloneRepository("https://github.com/Fenny/fiber-hello-world", "cool_bro")
+	id := ctx.Params("id")
+	_, err := database.GetProjectById(id)
+	log.Debug("found project by id ", id)
+	projectPath, err := lib.CloneRepoStep(id)
 	if err != nil {
 		return err
 	}
-	return ctx.SendString("Repository cloned at " + path)
+	return ctx.SendString("Repository cloned at " + projectPath)
 
 }
 func nixVersion(ctx *fiber.Ctx) error {
@@ -176,7 +179,7 @@ func UpdateRepo(c *fiber.Ctx) error {
 }
 
 func deploy(ctx *fiber.Ctx) error {
-	const ArgoGitRepostiroy = "git@github.com:ProRocketeers/goham-argo-repo.git" // todo: take me from env/app_cofnig
+	var ArgoGitRepostiroy = viper.Get("ARGO_GIT_REPOSITORY").(string)
 	const ArgoRepositoryFolderName = "argo-repo"
 	payload := struct {
 		Id string `json:"path"`
@@ -189,9 +192,15 @@ func deploy(ctx *fiber.Ctx) error {
 		return err
 	}
 
+	fmt.Println("Gimme obj by id")
+	projectById, err := database.GetProjectById(payload.Id)
+	if err != nil {
+		return err
+	}
+
 	fmt.Println("Lets edit yaml")
 	// Edit deploy files
-	status, err := lib.DeployEditor(ArgoRepositoryFolderName, payload.Id)
+	status, err := lib.DeployEditor(ArgoRepositoryFolderName, projectById)
 	if err != nil {
 		return err
 	}

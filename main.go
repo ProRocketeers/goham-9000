@@ -32,6 +32,7 @@ func main() {
 	app.Get("/repos", GetRepos)
 	app.Get("/repo/:id", GetRepo)
 	app.Post("/repo", NewRepo)
+	app.Put("/repo/:id", UpdateRepo)
 	app.Delete("/repo/:id", DeleteRepo)
 
 	app.Listen(":" + viper.Get("PORT").(string))
@@ -70,7 +71,11 @@ func GetRepos(c *fiber.Ctx) error {
 
 	var books []model.Repository
 	db.Find(&books)
-	c.JSON(books)
+	err := c.JSON(books)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 	return nil
 }
 
@@ -80,8 +85,12 @@ func GetRepo(c *fiber.Ctx) error {
 	var book model.Repository
 
 	db.Find(&book, id)
-	c.JSON(book)
+	err := c.JSON(book)
 
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
 	return nil
 }
 
@@ -127,4 +136,30 @@ func DeleteRepo(c *fiber.Ctx) error {
 
 	return nil
 
+}
+
+func UpdateRepo(c *fiber.Ctx) error {
+	id := c.Params("id")
+	db := database.DBConn
+
+	var repo model.Repository
+	result := db.First(&repo, id)
+	if result.Error != nil {
+		c.Status(404).SendString("No repository found with given ID")
+		return result.Error
+	}
+
+	var updatedRepo model.Repository
+	if err := c.BodyParser(&updatedRepo); err != nil {
+		c.Status(503).SendString("Error parsing request")
+		return err
+	}
+	db.Model(&repo).Updates(updatedRepo)
+
+	err := c.JSON(repo)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return nil
 }

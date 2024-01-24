@@ -1,10 +1,11 @@
 package main
 
 import (
-	"fiber_proketo/database"
-	"fiber_proketo/lib"
-	"fiber_proketo/model"
 	"fmt"
+	"goham-9000/database"
+	"goham-9000/lib"
+	"goham-9000/model"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/logger"

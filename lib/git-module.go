@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"errors"
 	"github.com/go-git/go-git/v5"
 	"github.com/gofiber/fiber/v2/log"
 	"os"
@@ -48,4 +49,15 @@ func CloneRepository(repo string, filename string) (string, error) {
 	log.Debug("Repo cloned")
 
 	return cloneDir, nil
+}
+func CloneRepoStep(projectId string) (string, error) {
+	// get repo by key
+
+	// resolve path
+
+	// clone repo
+
+	// update repo status in db
+
+	return "", errors.New("not implemented")
 }

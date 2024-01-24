@@ -1,4 +1,4 @@
-module fiber_proketo
+module goham-9000
 
 go 1.21
 

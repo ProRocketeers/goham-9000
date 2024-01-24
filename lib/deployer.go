@@ -72,7 +72,7 @@ func DeployEditor(folderPath string, dbRecord model.Repository) (string, error) 
 		Environment:  "dev",
 		ReplicaCount: 1,
 		Image: Image{
-			Repository: dbRecord.ImgUrl,
+			Repository: dbRecord.DockerImgUrl,
 			Tag:        "latest",
 		},
 	}

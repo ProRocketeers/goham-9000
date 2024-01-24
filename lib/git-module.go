@@ -70,7 +70,7 @@ func CloneRepoStep(projectId string) (string, error) {
 	}
 	log.Debug("Project found", project)
 
-	_, err = CloneRepository(project.URL, ResolveProjectFileName(project))
+	_, err = CloneRepository(project.GitUrl, ResolveProjectFileName(project))
 	if err != nil {
 		return "", err
 	}

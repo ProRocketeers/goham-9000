@@ -65,11 +65,9 @@ func NixpackBuildStep(projectId string) (model2.Repository, error) {
 	log.Debug("Done")
 	log.Debug("________________________")
 	record.Status = database.P_IMG_BUILT
-	record.ImgUrl = imageName
-	_, err = database.UpdateProjectStatus(projectId, database.P_IMG_BUILT)
-	if err != nil {
-		return model2.Repository{}, err
-	}
+	record.LocalImgPath = imageName
+	log.Debug("TODO save to database")
+
 	return record, nil
 }
 

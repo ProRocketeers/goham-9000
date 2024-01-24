@@ -1,51 +1,30 @@
 package lib
 
 import (
-	"fmt"
-
+	"github.com/gofiber/fiber/v2/log"
+	"github.com/heroku/docker-registry-client/registry"
 	"github.com/spf13/viper"
 )
 
 func Tst(uuid string, path string) string {
 	// Here code co uploaduje do registru
 
-	// ctx := context.Background()
-	// cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// authConfig := types.AuthConfig{
-	// 	Username:      "yourusername",
-	// 	Password:      "yourpassword",
-	// 	ServerAddress: "registry-url:port",
-	// }
-	// encodedJSON, err := json.Marshal(authConfig)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// authStr := base64.URLEncoding.EncodeToString(encodedJSON)
-
-	// options := types.ImagePushOptions{RegistryAuth: authStr}
-
-	// responseBody, err := cli.ImagePush(ctx, "registry-url:port/yourimage:tag", options)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer responseBody.Close()
-
-	// // Print the response to stdout
-	// _, err = io.Copy(os.Stdout, responseBody)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
 	viper.SetConfigFile(".env")
 	viper.ReadInConfig()
 
-	port := viper.Get("PORT")
-	fmt.Println(port)
+	// curl -X GET -u prorocketeersdev:dckr_pat_AUm2LsPbOFP-fIQxRZfToWji41o "https://registry-1.docker.io/v2/_catalog"
+
+	// dckr_pat_AUm2LsPbOFP-fIQxRZfToWji41o    heslo: ProRocketeers.com_777
+	url := "https://index.docker.io/"
+	username := "prorocketeersdev"                     // viper.Get("DOCKERHUB_USERNAME").(string) // anonymous
+	password := "dckr_pat_AUm2LsPbOFP-fIQxRZfToWji41o" // viper.Get("DOCKERHUB_TOKEN").(string) // anonymous
+	hub, err := registry.New(url, username, password)
+
+	log.Debug(hub, err)
+
+	repositories, err := hub.Repositories()
+
+	log.Debug(repositories, err)
 
 	return "with this uuid: " + uuid + " from this path: " + path
 }

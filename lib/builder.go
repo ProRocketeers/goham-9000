@@ -24,13 +24,14 @@ func NixpackVersion() string {
 	return string(stdout)
 }
 
-func NixpackBuild(dir string) string {
+func NixpackBuild(path string) string {
+
 	prg := "nixpacks"
 
 	arg1 := "build"
 	//arg2 := "are three"
 
-	cmd := exec.Command(prg, arg1, dir)
+	cmd := exec.Command(prg, arg1, path)
 	log.Debug("executing: " + cmd.String())
 	stderr, err := cmd.StderrPipe()
 	cmd.Start()
@@ -45,4 +46,8 @@ func NixpackBuild(dir string) string {
 	}
 
 	return "hello"
+}
+
+func getPathFromDb(uuid string) {
+
 }

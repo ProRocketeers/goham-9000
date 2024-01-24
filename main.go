@@ -22,6 +22,7 @@ func main() {
 	app.Get("/", helloKek)
 	app.Get("/getgit", cloneRepo)
 	app.Get("/pack", nixVersion)
+	app.Post("build", nixBuild)
 	app.Post("/newRepo", newRepo)
 	app.Listen(":3000")
 }
@@ -40,7 +41,19 @@ func cloneRepo(ctx *fiber.Ctx) error {
 }
 func nixVersion(ctx *fiber.Ctx) error {
 	return ctx.SendString(lib.NixpackVersion())
+}
 
+func nixBuild(ctx *fiber.Ctx) error {
+	payload := struct {
+		Path string `json:"path"`
+	}{}
+
+	if err := ctx.BodyParser(&payload); err != nil {
+		return err
+	}
+	lib.NixpackBuild(payload.Path)
+
+	return ctx.JSON(payload)
 }
 
 func initDatabase() {

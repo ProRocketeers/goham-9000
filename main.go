@@ -176,7 +176,7 @@ func UpdateRepo(c *fiber.Ctx) error {
 }
 
 func deploy(ctx *fiber.Ctx) error {
-	const ArgoGitRepostiroy = "git@github.com:ProRocketeers/goham-argo-repo.git" // todo: take me from env/app_cofnig
+	var ArgoGitRepostiroy = viper.Get("ARGO_GIT_REPOSITORY").(string)
 	const ArgoRepositoryFolderName = "argo-repo"
 	payload := struct {
 		Id string `json:"path"`
@@ -189,9 +189,15 @@ func deploy(ctx *fiber.Ctx) error {
 		return err
 	}
 
+	fmt.Println("Gimme obj by id")
+	projectById, err := database.GetProjectById(payload.Id)
+	if err != nil {
+		return err
+	}
+
 	fmt.Println("Lets edit yaml")
 	// Edit deploy files
-	status, err := lib.DeployEditor(ArgoRepositoryFolderName, payload.Id)
+	status, err := lib.DeployEditor(ArgoRepositoryFolderName, projectById)
 	if err != nil {
 		return err
 	}

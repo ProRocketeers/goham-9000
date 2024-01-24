@@ -105,7 +105,7 @@ func CommitAndPush(filename string) error {
 	}
 
 	fmt.Println("git add ", filename)
-	w.Add(filename)
+	w.Add(".")
 
 	fmt.Println("Commit our changes")
 	w.Commit("Added my new file", &git.CommitOptions{})
@@ -121,8 +121,4 @@ func CommitAndPush(filename string) error {
 	}
 
 	return nil
-}
-
-func cleanup() {
-	// todo
 }

@@ -44,11 +44,6 @@ func CloneRepository(repo string, filename string) (string, error) {
 
 	log.Debug("Cloning ", cloneDir)
 
-	//auth, err := ssh.DefaultAuthBuilder("git")
-	//if err != nil {
-	//	log.Fatalf("default auth builder: %v", err)
-	//}
-	//
 	_, err = git.PlainClone(
 		cloneDir,
 		false,

@@ -9,27 +9,32 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/logger"
-	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/spf13/viper"
 )
 
 func main() {
-	initDatabase()
+	database.InitDatabase()
 
 	defer database.DBConn.Close()
 
 	viper.SetConfigFile(".env")
 	viper.ReadInConfig()
 
+	database.InitDatabase()
 	app := fiber.New()
 	app.Use(logger.New())
 	app.Get("/", helloKek)
 	app.Get("/getgit", cloneRepo)
 	app.Get("/pack", nixVersion)
 	app.Post("build", nixBuild)
-	app.Post("/newRepo", newRepo)
 	app.Get("/uploadToReg", uploadToReg)
+
+	app.Get("/repos", GetRepos)
+	app.Get("/repo/:id", GetRepo)
+	app.Post("/repo", NewRepo)
+	app.Delete("/repo/:id", DeleteRepo)
+
 	app.Listen(":" + viper.Get("PORT").(string))
 }
 
@@ -62,20 +67,27 @@ func nixBuild(ctx *fiber.Ctx) error {
 	return ctx.JSON(payload)
 }
 
-func initDatabase() {
-	var err error
-	database.DBConn, err = gorm.Open("sqlite3", "repos.db")
-	if err != nil {
-		panic("Failed to connect to database")
-	}
-	fmt.Println("DB Connected")
+func GetRepos(c *fiber.Ctx) error {
+	db := database.DBConn
 
-	database.DBConn.AutoMigrate(&model.Repository{})
-	fmt.Println("DB Migrated")
-
+	var books []model.Repository
+	db.Find(&books)
+	c.JSON(books)
+	return nil
 }
 
-func newRepo(c *fiber.Ctx) error {
+func GetRepo(c *fiber.Ctx) error {
+	id := c.Params("id")
+	db := database.DBConn
+	var book model.Repository
+
+	db.Find(&book, id)
+	c.JSON(book)
+
+	return nil
+}
+
+func NewRepo(c *fiber.Ctx) error {
 	db := database.DBConn
 	repo := new(model.Repository)
 	if err := c.BodyParser(repo); err != nil {
@@ -98,4 +110,23 @@ func uploadToReg(ctx *fiber.Ctx) error {
 	log.Debug("kekel")
 
 	return ctx.SendString("Henlo uploaded to register " + kekel)
+}
+
+func DeleteRepo(c *fiber.Ctx) error {
+	id := c.Params("id")
+	db := database.DBConn
+	var repo model.Repository
+
+	db.First(&repo, id)
+
+	if repo.URL == "" {
+		c.Status(500).SendString("No book found with given ID")
+		return nil
+	}
+
+	db.Delete(&repo)
+	c.SendString("Book successfully deleted!")
+
+	return nil
+
 }

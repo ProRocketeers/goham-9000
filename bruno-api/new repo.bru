@@ -1,0 +1,21 @@
+meta {
+  name: new repo
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{url}}/newRepo
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "url": "urls",
+    "name": "foooo",
+    "branch": "brancha",
+    "img_url": "",
+    "status": ""
+  }
+}

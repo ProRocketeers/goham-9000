@@ -8,6 +8,8 @@ import (
 
 const RootGitDir = "GIT_WORK_DIR"
 
+// CloneRepository clones a git repository into a given directory,
+// always clean folder before clone
 func CloneRepository(repo string, filename string) (string, error) {
 	cloneDir := RootGitDir + "/" + filename
 	log.Debug("Cloning ", repo, " into ", cloneDir, "...")

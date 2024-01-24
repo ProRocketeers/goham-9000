@@ -7,9 +7,9 @@ import (
 
 type Repository struct {
 	gorm.Model
-	URL    string `json:"url"`
-	Name   string `json:"name"`
-	Branch string `json:"branch"`
-	ImgUrl string `json:"img_url"`
-	Status string `json:"status"`
+	URL    string `json:"Url"`
+	Name   string `json:"Name"`
+	Branch string `json:"Branch"`
+	ImgUrl string `json:"ImgUrl"`
+	Status string `json:"Status"`
 }

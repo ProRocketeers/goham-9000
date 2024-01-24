@@ -75,16 +75,12 @@ func nixBuild(c *fiber.Ctx) error {
 }
 
 func GetRepos(c *fiber.Ctx) error {
-	db := database.DBConn
-
-	var books []model.Repository
-	db.Find(&books)
-	err := c.JSON(books)
+	repos, err := database.FetchAllRepos()
 	if err != nil {
-		fmt.Println(err)
+		c.Status(fiber.StatusInternalServerError).SendString("Error fetching repositories")
 		return err
 	}
-	return nil
+	return c.JSON(repos)
 }
 
 func GetRepo(c *fiber.Ctx) error {
@@ -98,22 +94,16 @@ func GetRepo(c *fiber.Ctx) error {
 }
 
 func NewRepo(c *fiber.Ctx) error {
-	db := database.DBConn
-	repo := new(model.Repository)
-	if err := c.BodyParser(repo); err != nil {
-		c.Status(503).SendString("Error creating repo")
-		return err
-	}
-
-	repo.Status = database.P_CREATED
-
-	db.Create(&repo)
-	err := c.JSON(repo)
+	repo, err := database.ParseRepoFromBody(c)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
-	return nil
+	err = database.CreateRepo(repo)
+	if err != nil {
+		c.Status(fiber.StatusInternalServerError).SendString("Error saving the repository")
+		return err
+	}
+	return c.JSON(repo)
 }
 
 func uploadToReg(ctx *fiber.Ctx) error {
@@ -126,30 +116,11 @@ func uploadToReg(ctx *fiber.Ctx) error {
 
 func DeleteRepo(c *fiber.Ctx) error {
 	id := c.Params("id")
-	db := database.DBConn
-	var repo model.Repository
-
-	db.First(&repo, id)
-
-	if repo.URL == "" {
-		c.Status(500).SendString("No book found with given ID")
-		return nil
+	projectById, err := database.GetProjectById(id)
+	if err != nil {
+		return err
 	}
-
-	db.Delete(&repo)
-	c.SendString("Book successfully deleted!")
-
-	return nil
-
-}
-
-func isValidStatus(status string) bool {
-	switch status {
-	case "CREATED", "BUILT", "CLONED", "UPLOADING", "DEPLOYED", "CLEARED":
-		return true
-	default:
-		return false
-	}
+	return database.DeleteRepoById(&projectById)
 }
 
 func UpdateRepo(c *fiber.Ctx) error {

@@ -2,12 +2,14 @@ package lib
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"github.com/gofiber/fiber/v2/log"
 	"goham-9000/database"
 	model2 "goham-9000/model"
 	"math/rand"
 	"os/exec"
+	"strings"
 )
 
 const letterBytes = "abcdefghijklmnopqrstuvwxyz1234567890"
@@ -56,12 +58,21 @@ func NixpackBuildStep(projectId string) (model2.Repository, error) {
 		log.Fatal(err)
 	}
 	scanner := bufio.NewScanner(stderr)
+	var isBuildFailed, message = 0, ""
 	for scanner.Scan() {
 		m := scanner.Text()
 		fmt.Println(m)
+		if strings.Contains(m, "error") {
+			isBuildFailed = 1
+			message = m
+		}
 	}
 	cmd.Wait()
-	if scanner.Err() != nil && err != nil {
+	if isBuildFailed == 1 {
+		log.Error(message)
+		return model2.Repository{}, errors.New(message)
+	}
+	if err != nil {
 		log.Error(err)
 		return model2.Repository{}, err
 	}

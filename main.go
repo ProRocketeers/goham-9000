@@ -5,7 +5,6 @@ import (
 	"fiber_proketo/lib"
 	"fiber_proketo/model"
 	"fmt"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -26,7 +25,7 @@ func main() {
 	app.Use(logger.New())
 	app.Get("/", helloKek)
 	app.Get("/getgit", cloneRepo)
-	app.Get("/pack", nixVersion)
+	app.Get("/version", nixVersion)
 	app.Post("build", nixBuild)
 	app.Get("/uploadToReg", uploadToReg)
 
@@ -63,7 +62,6 @@ func nixBuild(ctx *fiber.Ctx) error {
 		return err
 	}
 	lib.NixpackBuild(payload.Path)
-
 	return ctx.JSON(payload)
 }
 

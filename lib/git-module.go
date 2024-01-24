@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/gofiber/fiber/v2/log"
 	"os"
 )
@@ -34,12 +35,18 @@ func CloneRepository(repo string, filename string) (string, error) {
 
 	log.Debug("Cloning ", cloneDir)
 
+	//auth, err := ssh.DefaultAuthBuilder("git")
+	//if err != nil {
+	//	log.Fatalf("default auth builder: %v", err)
+	//}
+	//
 	_, err = git.PlainClone(
 		cloneDir,
 		false,
 		&git.CloneOptions{
 			URL:  repo,
 			Tags: git.NoTags,
+			//Auth: auth,
 		},
 	)
 	if err != nil {
@@ -72,13 +79,29 @@ func CommitAndPush(filename string) error {
 		return err
 	}
 
-	_, err = r.CommitObjects()
+	auth, err := ssh.DefaultAuthBuilder("git")
 	if err != nil {
+		log.Fatalf("default auth builder: %v", err)
+	}
+
+	fmt.Println("set worktree")
+	w, err := r.Worktree()
+	if err != nil {
+		fmt.Printf("%v", err)
 		return err
 	}
 
+	fmt.Println("git add ", filename)
+	w.Add(filename)
+
+	fmt.Println("Commit our changes")
+	w.Commit("Added my new file", &git.CommitOptions{})
+
 	fmt.Println("Git push") // todo:
-	err = r.Push(&git.PushOptions{})
+	err = r.Push(&git.PushOptions{
+		RemoteName: "origin",
+		Auth:       auth,
+	})
 	if err != nil {
 		log.Error(err)
 		return err

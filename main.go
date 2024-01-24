@@ -173,7 +173,7 @@ func UpdateRepo(c *fiber.Ctx) error {
 }
 
 func deploy(ctx *fiber.Ctx) error {
-	const ArgoGitRepostiroy = "https://github.com/ProRocketeers/goham-argo-repo" // todo: take me from env/app_cofnig
+	const ArgoGitRepostiroy = "git@github.com:ProRocketeers/goham-argo-repo.git" // todo: take me from env/app_cofnig
 	const ArgoRepositoryFolderName = "argo-repo"
 	payload := struct {
 		Id string `json:"path"`

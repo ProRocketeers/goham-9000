@@ -67,7 +67,10 @@ func NixpackBuildStep(projectId string) (model2.Repository, error) {
 			message = m
 		}
 	}
-	cmd.Wait()
+	err = cmd.Wait()
+	if err != nil {
+		return model2.Repository{}, err
+	}
 	if isBuildFailed == 1 {
 		log.Error(message)
 		return model2.Repository{}, errors.New(message)

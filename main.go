@@ -11,12 +11,16 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/spf13/viper"
 )
 
 func main() {
 	initDatabase()
 
 	defer database.DBConn.Close()
+
+	viper.SetConfigFile(".env")
+	viper.ReadInConfig()
 
 	app := fiber.New()
 	app.Use(logger.New())
@@ -26,7 +30,7 @@ func main() {
 	app.Post("build", nixBuild)
 	app.Post("/newRepo", newRepo)
 	app.Get("/uploadToReg", uploadToReg)
-	app.Listen(":3000")
+	app.Listen(":" + viper.Get("PORT").(string))
 }
 
 func helloKek(ctx *fiber.Ctx) error {

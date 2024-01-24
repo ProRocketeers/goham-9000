@@ -99,6 +99,8 @@ func NewRepo(c *fiber.Ctx) error {
 		return err
 	}
 
+	repo.Status = "CREATED"
+
 	db.Create(&repo)
 	err := c.JSON(repo)
 	if err != nil {
@@ -133,6 +135,15 @@ func DeleteRepo(c *fiber.Ctx) error {
 
 	return nil
 
+}
+
+func isValidStatus(status string) bool {
+	switch status {
+	case "CREATED", "BUILT", "CLONED", "UPLOADING", "DEPLOYED", "CLEARED":
+		return true
+	default:
+		return false
+	}
 }
 
 func UpdateRepo(c *fiber.Ctx) error {

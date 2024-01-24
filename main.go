@@ -3,6 +3,7 @@ package main
 import (
 	"fiber_proketo/lib"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
@@ -16,11 +17,12 @@ func main() {
 }
 
 func helloKek(ctx *fiber.Ctx) error {
+	log.Info("Hello Kek!")
 	return ctx.SendString("Hello Kek!")
 
 }
 func cloneRepo(ctx *fiber.Ctx) error {
-	err := lib.CloneRepository("Keeek")
+	err := lib.CloneRepository("Keeek", "FOLDER")
 	if err != nil {
 		return err
 	}

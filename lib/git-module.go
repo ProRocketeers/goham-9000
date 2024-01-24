@@ -6,43 +6,48 @@ import (
 	"os"
 )
 
-func CloneRepository(repo string) error {
-	direktus := "foobaz"
-	err := os.RemoveAll(direktus)
+const ROOT_GIT_DIR = "GIT_WORK_DIR"
+
+func CloneRepository(repo string, filename string) error {
+	log.Debug("Cloning ", repo, " into ", filename, "...")
+	cloneDir := ROOT_GIT_DIR + filename
+
+	log.Debug("Removing ", cloneDir)
+	err := os.RemoveAll(cloneDir)
+
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Debug("Removing ", direktus)
 
-	err = os.Mkdir(direktus, 0755)
+	log.Debug("Creating ", cloneDir)
+	err = os.Mkdir(cloneDir, 0755)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	log.Debug("Creating ", direktus)
+	log.Debug("Cloning ", cloneDir)
 
 	// Clones the repository into the worktree (fs) and stores all the .git
 	// content into the storer
-	r, err := git.PlainClone(
-		direktus,
+	_, err = git.PlainClone(
+		cloneDir,
 		false,
 		&git.CloneOptions{
-			URL:  "https://github.com/Fenny/fiber-hello-world",
+			URL:  repo,
 			Tags: git.NoTags,
 		},
 	)
-	log.Debug("Cloning ", direktus)
-
 	if err != nil {
 		log.Fatal(err)
 	}
-	NixpackBuild(direktus)
-	branches, err := r.Branches()
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	println(branches, "BRancehros")
+	log.Debug("Repo cloned")
+	//
+	//branches, err := r.Branches()
+	//
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//println(branches, "BRancehros")
 	// Prints the content of the CHANGELOG file from the cloned repository
 	return nil
 }

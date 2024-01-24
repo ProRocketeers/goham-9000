@@ -1,7 +1,6 @@
 package lib
 
 import (
-	"errors"
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
@@ -81,8 +80,12 @@ func CloneRepoStep(projectId string) (string, error) {
 		return "", err
 	}
 	// update repo status in db
+	updatedProject, _ := database.UpdateProjectStatus(projectId, database.P_CLONED)
+	if err != nil {
+		return "", err
+	}
 
-	return "", errors.New("not implemented")
+	return ResolveProjectPath(updatedProject), nil
 }
 
 // todo: maybe separate em

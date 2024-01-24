@@ -42,3 +42,11 @@ func GetProjectById(projectId string) (model.Repository, error) {
 
 	return repo, nil
 }
+func UpdateProjectStatus(projectId string, status string) (model.Repository, error) {
+	log.Debug("Updating" + projectId + " status, to " + status)
+	var repo model.Repository
+
+	DBConn.Find(&repo, projectId).Update(&model.Repository{Status: status})
+
+	return repo, nil
+}

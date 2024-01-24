@@ -48,7 +48,7 @@ func NixpackBuildStep(projectId string) (model2.Repository, error) {
 	arg2 := "--name"
 	imageName := randStringBytes()
 
-	cmd := exec.Command(prg, arg1, record.URL, arg2, imageName)
+	cmd := exec.Command(prg, arg1, ResolveProjectPath(record), arg2, imageName)
 	log.Debug("________________________")
 	log.Debug("executing: " + cmd.String())
 	stderr, _ := cmd.StderrPipe()

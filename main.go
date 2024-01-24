@@ -24,7 +24,7 @@ func main() {
 	database.InitDatabase()
 	app := fiber.New()
 	app.Use(logger.New())
-	app.Get("/", helloKek)
+	app.Get("/", root)
 	app.Get("/getgit", cloneRepo)
 	app.Get("/version", nixVersion)
 	app.Post("build", nixBuild)
@@ -40,9 +40,8 @@ func main() {
 	app.Listen(":" + viper.Get("PORT").(string))
 }
 
-func helloKek(ctx *fiber.Ctx) error {
-	log.Info("Hello Kek!")
-	return ctx.SendString("Hello Kek!")
+func root(ctx *fiber.Ctx) error {
+	return ctx.SendString("Hello from goham 9000")
 }
 func cloneRepo(ctx *fiber.Ctx) error {
 	path, err := lib.CloneRepository("https://github.com/Fenny/fiber-hello-world", "cool_bro")

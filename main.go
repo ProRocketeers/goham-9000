@@ -82,17 +82,12 @@ func GetRepos(c *fiber.Ctx) error {
 
 func GetRepo(c *fiber.Ctx) error {
 	id := c.Params("id")
-	db := database.DBConn
-	var book model.Repository
-
-	db.Find(&book, id)
-	err := c.JSON(book)
-
+	projectById, err := database.GetProjectById(id)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
-	return nil
+	err = c.JSON(projectById)
+	return err
 }
 
 func NewRepo(c *fiber.Ctx) error {

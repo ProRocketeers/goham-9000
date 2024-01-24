@@ -22,11 +22,11 @@ func helloKek(ctx *fiber.Ctx) error {
 
 }
 func cloneRepo(ctx *fiber.Ctx) error {
-	err := lib.CloneRepository("Keeek", "FOLDER")
+	path, err := lib.CloneRepository("https://github.com/Fenny/fiber-hello-world", "cool_bro")
 	if err != nil {
 		return err
 	}
-	return ctx.SendString("Hello Kek!")
+	return ctx.SendString("Repository cloned at " + path)
 
 }
 func nixVersion(ctx *fiber.Ctx) error {

@@ -6,29 +6,30 @@ import (
 	"os"
 )
 
-const ROOT_GIT_DIR = "GIT_WORK_DIR"
+const RootGitDir = "GIT_WORK_DIR"
 
-func CloneRepository(repo string, filename string) error {
-	log.Debug("Cloning ", repo, " into ", filename, "...")
-	cloneDir := ROOT_GIT_DIR + filename
+func CloneRepository(repo string, filename string) (string, error) {
+	cloneDir := RootGitDir + "/" + filename
+	log.Debug("Cloning ", repo, " into ", cloneDir, "...")
 
 	log.Debug("Removing ", cloneDir)
 	err := os.RemoveAll(cloneDir)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Info("No file to remove", err)
+		return "", err
+
 	}
 
 	log.Debug("Creating ", cloneDir)
-	err = os.Mkdir(cloneDir, 0755)
+	err = os.MkdirAll(cloneDir, 0755)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return "", err
 	}
 
 	log.Debug("Cloning ", cloneDir)
 
-	// Clones the repository into the worktree (fs) and stores all the .git
-	// content into the storer
 	_, err = git.PlainClone(
 		cloneDir,
 		false,
@@ -38,16 +39,11 @@ func CloneRepository(repo string, filename string) error {
 		},
 	)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
+		return "", err
+
 	}
 	log.Debug("Repo cloned")
-	//
-	//branches, err := r.Branches()
-	//
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//println(branches, "BRancehros")
-	// Prints the content of the CHANGELOG file from the cloned repository
-	return nil
+
+	return cloneDir, nil
 }

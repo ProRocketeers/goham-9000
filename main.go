@@ -5,6 +5,7 @@ import (
 	"fiber_proketo/lib"
 	"fiber_proketo/model"
 	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/gofiber/fiber/v2/middleware/logger"
@@ -24,6 +25,7 @@ func main() {
 	app.Get("/pack", nixVersion)
 	app.Post("build", nixBuild)
 	app.Post("/newRepo", newRepo)
+	app.Get("/uploadToReg", uploadToReg)
 	app.Listen(":3000")
 }
 
@@ -84,4 +86,12 @@ func newRepo(c *fiber.Ctx) error {
 		return err
 	}
 	return nil
+}
+
+func uploadToReg(ctx *fiber.Ctx) error {
+	kekel := lib.Tst("some_super_hash", "/nejaka/cesta")
+
+	log.Debug("kekel")
+
+	return ctx.SendString("Henlo uploaded to register " + kekel)
 }

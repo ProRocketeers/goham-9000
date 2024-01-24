@@ -1,6 +1,7 @@
 package lib
 
 import (
+	"fmt"
 	"errors"
 	"github.com/go-git/go-git/v5"
 	"github.com/gofiber/fiber/v2/log"
@@ -60,4 +61,32 @@ func CloneRepoStep(projectId string) (string, error) {
 	// update repo status in db
 
 	return "", errors.New("not implemented")
+}
+
+// todo: maybe separate em
+func CommitAndPush(filename string) error {
+	fmt.Println("PlainOpen " + filename)
+	r, err := git.PlainOpen(filename)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	_, err = r.CommitObjects()
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Git push") // todo:
+	err = r.Push(&git.PushOptions{})
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	return nil
+}
+
+func cleanup() {
+	// todo
 }

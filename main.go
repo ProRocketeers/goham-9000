@@ -29,6 +29,7 @@ func main() {
 	app.Get("/version", nixVersion)
 	app.Post("build", nixBuild)
 	app.Get("/uploadToReg", uploadToReg)
+	app.Post("/deploy", deploy)
 
 	app.Get("/repos", GetRepos)
 	app.Get("/repo/:id", GetRepo)
@@ -158,4 +159,34 @@ func UpdateRepo(c *fiber.Ctx) error {
 		return err
 	}
 	return nil
+}
+
+func deploy(ctx *fiber.Ctx) error {
+	const ArgoGitRepostiroy = "https://github.com/ProRocketeers/goham-argo-repo" // todo: take me from env/app_cofnig
+	const ArgoRepositoryFolderName = "argo-repo"
+	payload := struct {
+		Id string `json:"path"`
+	}{}
+
+	fmt.Println("Lets clone argo repo")
+	// clone posledni verze repa
+	path, err := lib.CloneRepository(ArgoGitRepostiroy, ArgoRepositoryFolderName)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Lets edit yaml")
+	// Edit deploy files
+	status, err := lib.DeployEditor(ArgoRepositoryFolderName, payload.Id)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Lets Commit and Push")
+	err = lib.CommitAndPush(path)
+	if err != nil {
+		return err
+	}
+
+	return ctx.SendString(status)
 }

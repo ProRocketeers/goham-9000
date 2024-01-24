@@ -1,8 +1,6 @@
 .idea
 fiber_proketo
-<<<<<<< HEAD
 GIT_WORK_DIR
-=======
 foobaz
 repos.db
->>>>>>> 51efb71 (addInitDB)
+

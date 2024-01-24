@@ -26,7 +26,7 @@ func main() {
 	app.Use(logger.New())
 	app.Get("/", root)
 	app.Get("/version", nixVersion)
-	app.Post("build", nixBuild)
+	app.Post("build/:id", nixBuild)
 	app.Get("/uploadToReg", uploadToReg)
 	app.Post("/clone/:id", cloneRepo)
 	app.Post("/deploy", deploy)
@@ -58,20 +58,14 @@ func nixVersion(ctx *fiber.Ctx) error {
 	return ctx.SendString(lib.NixpackVersion())
 }
 
-func nixBuild(c *fiber.Ctx) error {
-	payload := struct {
-		Id string `json:"id"`
-	}{}
+func nixBuild(ctx *fiber.Ctx) error {
+	id := ctx.Params("id")
 
-	if err := c.BodyParser(&payload); err != nil {
-		return err
-	}
-
-	var response, err = lib.NixpackBuild(payload.Id)
+	response, err := lib.NixpackBuildStep(id)
 	if err != nil {
 		return err
 	}
-	return c.JSON(response)
+	return ctx.JSON(response)
 }
 
 func GetRepos(c *fiber.Ctx) error {

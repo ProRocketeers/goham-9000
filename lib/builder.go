@@ -37,9 +37,9 @@ func NixpackVersion() string {
 	return string(stdout)
 }
 
-func NixpackBuild(id string) (model2.Repository, error) {
+func NixpackBuildStep(projectId string) (model2.Repository, error) {
 
-	var record, err = database.GetProjectById(id)
+	var record, err = database.GetProjectById(projectId)
 	if err != nil {
 		return model2.Repository{}, err
 	}
@@ -69,6 +69,9 @@ func NixpackBuild(id string) (model2.Repository, error) {
 	log.Debug("________________________")
 	record.Status = database.P_IMG_BUILT
 	record.ImgUrl = imageName
-
+	_, err = database.UpdateProjectStatus(projectId, database.P_IMG_BUILT)
+	if err != nil {
+		return model2.Repository{}, err
+	}
 	return record, nil
 }

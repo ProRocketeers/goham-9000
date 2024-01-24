@@ -12,6 +12,15 @@ var (
 	DBConn *gorm.DB
 )
 
+const (
+	P_CREATED      = "CREATED"
+	P_CLONED       = "CLONED"
+	P_IMG_BUILT    = "IMG_BUILT"
+	P_IMG_UPLOADED = "IMG_UPLOADED"
+	P_DEPLOYED     = "DEPLOYED"
+	P_CLEARED      = "CLEARED"
+)
+
 func InitDatabase() {
 	var err error
 	DBConn, err = gorm.Open("sqlite3", "repos.db")
@@ -26,8 +35,9 @@ func InitDatabase() {
 }
 
 func GetProjectById(projectId string) (model.Repository, error) {
-	var repo model.Repository
 	log.Debug("Getting project by id")
+
+	var repo model.Repository
 	DBConn.Find(&repo, projectId)
 
 	return repo, nil

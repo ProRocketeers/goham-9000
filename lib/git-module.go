@@ -6,10 +6,20 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"github.com/gofiber/fiber/v2/log"
+	"goham-9000/database"
+	"goham-9000/model"
 	"os"
+	"strconv"
 )
 
 const RootGitDir = "GIT_WORK_DIR"
+
+func ResolveProjectPath(project model.Repository) string {
+	return RootGitDir + "/" + ResolveProjectFileName(project)
+}
+func ResolveProjectFileName(project model.Repository) string {
+	return strconv.Itoa(int(project.ID))
+}
 
 // CloneRepository clones a git repository into a given directory,
 // always clean folder before clone
@@ -60,11 +70,16 @@ func CloneRepository(repo string, filename string) (string, error) {
 }
 func CloneRepoStep(projectId string) (string, error) {
 	// get repo by key
+	project, err := database.GetProjectById(projectId)
+	if err != nil {
+		return "", err
+	}
+	log.Debug("Project found", project)
 
-	// resolve path
-
-	// clone repo
-
+	_, err = CloneRepository(project.URL, ResolveProjectFileName(project))
+	if err != nil {
+		return "", err
+	}
 	// update repo status in db
 
 	return "", errors.New("not implemented")

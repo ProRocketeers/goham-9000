@@ -99,7 +99,7 @@ func NewRepo(c *fiber.Ctx) error {
 		return err
 	}
 
-	repo.Status = "CREATED"
+	repo.Status = database.P_CREATED
 
 	db.Create(&repo)
 	err := c.JSON(repo)

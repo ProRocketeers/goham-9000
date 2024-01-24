@@ -64,7 +64,10 @@ func nixBuild(c *fiber.Ctx) error {
 		return err
 	}
 
-	var response = lib.NixpackBuild(payload.Id)
+	var response, err = lib.NixpackBuild(payload.Id)
+	if err != nil {
+		return err
+	}
 	return c.JSON(response)
 }
 

@@ -37,10 +37,12 @@ func NixpackVersion() string {
 	return string(stdout)
 }
 
-func NixpackBuild(id string) model2.Repository {
+func NixpackBuild(id string) (model2.Repository, error) {
 
 	var record, err = database.GetProjectById(id)
-
+	if err != nil {
+		return model2.Repository{}, err
+	}
 	prg := "nixpacks"
 	arg1 := "build"
 	arg2 := "--name"
@@ -49,21 +51,24 @@ func NixpackBuild(id string) model2.Repository {
 	cmd := exec.Command(prg, arg1, record.URL, arg2, imageName)
 	log.Debug("________________________")
 	log.Debug("executing: " + cmd.String())
-	stderr, err := cmd.StderrPipe()
-	cmd.Start()
+	stderr, _ := cmd.StderrPipe()
+	if err := cmd.Start(); err != nil {
+		log.Fatal(err)
+	}
 	scanner := bufio.NewScanner(stderr)
 	for scanner.Scan() {
 		m := scanner.Text()
 		fmt.Println(m)
 	}
 	cmd.Wait()
-	if err != nil {
-		log.Fatal(err)
+	if scanner.Err() != nil && err != nil {
+		log.Error(err)
+		return model2.Repository{}, err
 	}
 	log.Debug("Done")
 	log.Debug("________________________")
-	record.Status = "BUILT"
+	record.Status = database.P_IMG_BUILT
 	record.ImgUrl = imageName
 
-	return record
+	return record, nil
 }

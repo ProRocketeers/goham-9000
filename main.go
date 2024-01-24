@@ -26,7 +26,7 @@ func main() {
 	app.Use(logger.New())
 	app.Get("/", root)
 	app.Get("/version", nixVersion)
-	app.Post("build/:id", nixBuild)
+	app.Post("/build/:id", nixBuild)
 	app.Get("/uploadToReg", uploadToReg)
 	app.Post("/clone/:id", cloneRepo)
 	app.Post("/deploy", deploy)

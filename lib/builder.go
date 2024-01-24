@@ -53,24 +53,7 @@ func NixpackBuildStep(projectId string) (model2.Repository, error) {
 	cmd := exec.Command(prg, arg1, ResolveProjectPath(record), arg2, imageName)
 	log.Debug("________________________")
 	log.Debug("executing: " + cmd.String())
-	stderr, _ := cmd.StderrPipe()
-	if err := cmd.Start(); err != nil {
-		log.Fatal(err)
-	}
-	scanner := bufio.NewScanner(stderr)
-	var isBuildFailed, message = 0, ""
-	for scanner.Scan() {
-		m := scanner.Text()
-		fmt.Println(m)
-		if strings.Contains(m, "error") {
-			isBuildFailed = 1
-			message = m
-		}
-	}
-	err = cmd.Wait()
-	if err != nil {
-		return model2.Repository{}, err
-	}
+	var isBuildFailed, message = buildImage(cmd)
 	if isBuildFailed == 1 {
 		log.Error(message)
 		return model2.Repository{}, errors.New(message)
@@ -88,4 +71,27 @@ func NixpackBuildStep(projectId string) (model2.Repository, error) {
 		return model2.Repository{}, err
 	}
 	return record, nil
+}
+
+func buildImage(cmd *exec.Cmd) (int, string) {
+	stderr, _ := cmd.StderrPipe()
+	if err := cmd.Start(); err != nil {
+		log.Fatal(err)
+	}
+	scanner := bufio.NewScanner(stderr)
+	var isBuildFailed, message = 0, ""
+	for scanner.Scan() {
+		m := scanner.Text()
+		fmt.Println(m)
+		if strings.Contains(m, "error") {
+			isBuildFailed = 1
+			message = m
+		}
+	}
+	err := cmd.Wait()
+	if err != nil {
+		isBuildFailed = 1
+		message = err.Error()
+	}
+	return isBuildFailed, message
 }

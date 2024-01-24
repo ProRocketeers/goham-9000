@@ -55,16 +55,17 @@ func nixVersion(ctx *fiber.Ctx) error {
 	return ctx.SendString(lib.NixpackVersion())
 }
 
-func nixBuild(ctx *fiber.Ctx) error {
+func nixBuild(c *fiber.Ctx) error {
 	payload := struct {
-		Path string `json:"path"`
+		Id string `json:"id"`
 	}{}
 
-	if err := ctx.BodyParser(&payload); err != nil {
+	if err := c.BodyParser(&payload); err != nil {
 		return err
 	}
-	lib.NixpackBuild(payload.Path)
-	return ctx.JSON(payload)
+
+	var response = lib.NixpackBuild(payload.Id)
+	return c.JSON(response)
 }
 
 func GetRepos(c *fiber.Ctx) error {

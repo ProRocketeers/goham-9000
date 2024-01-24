@@ -16,5 +16,10 @@ tar -xf nixpacks-v1.21.0-x86_64-unknown-linux-gnu.tar.gz
 sudo cp nixpacks /usr/local/bin/
 ```
 
-## step 3
+## step 3 
+
+download https://www.usebruno.com/downloads
+for api testing (postman alternative)
+
+## step x
 profit

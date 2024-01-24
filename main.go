@@ -16,6 +16,7 @@ func main() {
 	initDatabase()
 
 	defer database.DBConn.Close()
+
 	app := fiber.New()
 	app.Use(logger.New())
 	app.Get("/", helloKek)

@@ -21,5 +21,8 @@ sudo cp nixpacks /usr/local/bin/
 download https://www.usebruno.com/downloads
 for api testing (postman alternative)
 
+Select "localhost" environment, otherwise you will get following error 
+`Error invoking remote method 'send-http-request': Error: getaddrinfo ENOTFOUND registry`
+
 ## step x
 profit

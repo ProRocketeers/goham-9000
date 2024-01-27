@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"goham-9000/database"
 	"goham-9000/lib"
 	"goham-9000/model"
@@ -23,19 +24,28 @@ func main() {
 
 	database.InitDatabase()
 	app := fiber.New()
+	// Initialize default config
+	app.Use(cors.New())
+
+	// Or extend your config for customization
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3001",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
+
 	app.Use(logger.New())
 	app.Get("/", root)
 	app.Get("/version", nixVersion)
 	app.Post("/build/:id", nixBuild)
-	app.Get("/uploadToReg", uploadToReg)
+	app.Post("/registry", uploadToDockerRegistry)
 	app.Post("/clone/:id", cloneRepo)
-	app.Post("/deploy", deploy)
+	app.Post("/deploy/:id", deploy)
+	app.Post("/repository", InitNewGitRepository)
 
-	app.Get("/repos", GetRepos)
-	app.Get("/repo/:id", GetRepo)
-	app.Post("/repo", NewRepo)
-	app.Put("/repo/:id", UpdateRepo)
-	app.Delete("/repo/:id", DeleteRepo)
+	app.Get("/repository", GetGitRepositories)         // todo: not used
+	app.Get("/repository/:id", GetGitRepository)       // todo: not used
+	app.Put("/repository/:id", UpdateGitRepository)    // todo: not used
+	app.Delete("/repository/:id", DeleteGitRepository) // todo: not used
 
 	app.Listen(":" + viper.Get("PORT").(string))
 }
@@ -68,7 +78,7 @@ func nixBuild(ctx *fiber.Ctx) error {
 	return ctx.JSON(response)
 }
 
-func GetRepos(c *fiber.Ctx) error {
+func GetGitRepositories(c *fiber.Ctx) error {
 	repos, err := database.FetchAllRepos()
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError).SendString("Error fetching repositories")
@@ -77,7 +87,7 @@ func GetRepos(c *fiber.Ctx) error {
 	return c.JSON(repos)
 }
 
-func GetRepo(c *fiber.Ctx) error {
+func GetGitRepository(c *fiber.Ctx) error {
 	id := c.Params("id")
 	projectById, err := database.GetProjectById(id)
 	if err != nil {
@@ -87,7 +97,7 @@ func GetRepo(c *fiber.Ctx) error {
 	return err
 }
 
-func NewRepo(c *fiber.Ctx) error {
+func InitNewGitRepository(c *fiber.Ctx) error {
 	repo, err := database.ParseRepoFromBody(c)
 	if err != nil {
 		return err
@@ -100,7 +110,7 @@ func NewRepo(c *fiber.Ctx) error {
 	return c.JSON(repo)
 }
 
-func uploadToReg(ctx *fiber.Ctx) error {
+func uploadToDockerRegistry(ctx *fiber.Ctx) error {
 	kekel := lib.Tst("some_super_hash", "/nejaka/cesta")
 
 	log.Debug("kekel")
@@ -108,7 +118,7 @@ func uploadToReg(ctx *fiber.Ctx) error {
 	return ctx.SendString("Henlo uploaded to register " + kekel)
 }
 
-func DeleteRepo(c *fiber.Ctx) error {
+func DeleteGitRepository(c *fiber.Ctx) error {
 	id := c.Params("id")
 	projectById, err := database.GetProjectById(id)
 	if err != nil {
@@ -117,7 +127,7 @@ func DeleteRepo(c *fiber.Ctx) error {
 	return database.DeleteRepoById(&projectById)
 }
 
-func UpdateRepo(c *fiber.Ctx) error {
+func UpdateGitRepository(c *fiber.Ctx) error {
 	id := c.Params("id")
 	db := database.DBConn
 

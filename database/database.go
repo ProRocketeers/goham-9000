@@ -53,6 +53,7 @@ func UpdateProjectStatus(projectId string, status string) (model.Repository, err
 }
 
 func ParseRepoFromBody(c *fiber.Ctx) (*model.Repository, error) {
+	log.Debug("Lets do some init")
 	repo := new(model.Repository)
 	if err := c.BodyParser(repo); err != nil {
 		c.Status(fiber.StatusInternalServerError).SendString("Error parsing repository data")
